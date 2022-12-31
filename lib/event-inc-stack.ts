@@ -78,7 +78,7 @@ export class EventIncStack extends Stack {
     private createRegisterShortLinkLambda() {
         this.registerShortLink = this.createLambda(
             'registerShortLink',
-            '/api/registerShortLink.ts',
+            '/registerShortLink.ts',
             {
                 'SHORT_URL_TABLE': this.shortLinkTable.tableName,
             }
@@ -88,7 +88,7 @@ export class EventIncStack extends Stack {
     private createResolveShortLinkLambda() {
         this.resolveShortLink = this.createLambda(
             'resolveShortLink',
-            '/api/resolveShortLink.ts',
+            '/resolveShortLink.ts',
             {
                 'SHORT_URL_TABLE': this.shortLinkTable.tableName,
             }
