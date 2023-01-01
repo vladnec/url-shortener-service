@@ -13,6 +13,7 @@ export interface EventIncStackProps extends StackProps {
 }
 
 export class EventIncStack extends Stack {
+    private shortLinkAPIStageURL: string | undefined;
     private shortLinkTable: Table
     private registerShortLink: NodejsFunction
     private resolveShortLink: NodejsFunction
@@ -64,16 +65,16 @@ export class EventIncStack extends Stack {
         })
 
         api.addRoutes({
-            path: '/:id',
+            path: '/{id}',
             methods: [HttpMethod.GET],
             integration: new HttpLambdaIntegration('resolveShortLink', this.resolveShortLink)
         })
-
         // new ARecord(this, 'ApiGatewayRecordSet', {
         //     target: RecordTarget.fromAlias(new ApiGatewayv2DomainProperties(domainName.regionalDomainName, domainName.regionalHostedZoneId)),
         //     zone: hostedZone,
         //     recordName: 'api-v2'
         // })
+        this.shortLinkAPIStageURL = api.url
     }
     private createRegisterShortLinkLambda() {
         this.registerShortLink = this.createLambda(
@@ -91,6 +92,7 @@ export class EventIncStack extends Stack {
             '/resolveShortLink.ts',
             {
                 'SHORT_URL_TABLE': this.shortLinkTable.tableName,
+                'SHORT_LINK_STAGE_URL': this.shortLinkAPIStageURL
             }
         )
         this.shortLinkTable.grantReadData(this.resolveShortLink)

@@ -1,40 +1,31 @@
-import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from 'aws-lambda';
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
 import {nanoid} from "nanoid";
 import DynamoDBShortLinkService from "../services/DynamoDBShortLinkService";
+import ResponseHelper from "../utils/ResponseHelper";
 
 const isValidUrl =  (url: string): boolean => {
     try {
         new URL(url);
     } catch (error) {
-        console.log ("error is", error);
+        console.log(error)
         return false;
     }
     return true;
 }
 
-export const handler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     if (!event.body) {
-        return {
-            statusCode: 422,
-            body: JSON.stringify('Body Required'),
-        }
-    }
-    const body = JSON.parse(event.body)
-    const { url } = body
-    console.log(body)
-    
-    if (!url) {
-        return {
-            statusCode: 422,
-            body: JSON.stringify('URL undefined in body'),
-        }
+        return ResponseHelper.error('Body Required.',422)
     }
 
+    const body = JSON.parse(event.body)
+    const { url } = body
+
+    if (!url) {
+        return ResponseHelper.error('URL undefined in body.', 422)
+    }
     if (!isValidUrl(url)) {
-        return {
-            statusCode:422,
-            body: JSON.stringify('URL is not valid')
-        }
+        return ResponseHelper.error("URL is not valid. URL must start with 'http'.", 422)
     }
 
     const id = nanoid(8)
@@ -44,17 +35,13 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
             url,
         })
     } catch (e) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify(`Failed to saved to DDB with message: ${e}`)
-        }
+        return ResponseHelper.error(
+            `Failed to save short-link to DDB with message: ${e}`,
+            500
+        )
     }
 
-    return {
-        statusCode: 200,
-        body: JSON.stringify({
-            shortlink: id
-        })
-    }
-
+    return ResponseHelper.success({
+        shortlink: id
+    })
 };
