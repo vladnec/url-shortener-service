@@ -1,8 +1,4 @@
-import {
-    APIGatewayProxyEvent,
-    APIGatewayProxyEventPathParameters,
-    APIGatewayProxyEventQueryStringParameters,
-} from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters, APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
 
 const generateApiGatewayEvent = (
     path: string,
@@ -19,11 +15,11 @@ const generateApiGatewayEvent = (
     pathParameters,
     queryStringParameters,
     multiValueQueryStringParameters: null,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     requestContext: {},
 });
 
 export {
-    generateApiGatewayEvent
-}
-
+    generateApiGatewayEvent,
+};
