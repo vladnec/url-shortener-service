@@ -15,7 +15,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
             return ResponseHelper.error(`Could not find redirect url for ID: ${id}.`, 404);
         }
         return ResponseHelper.redirect(shortLink.url);
-    } catch (e) {
-        return ResponseHelper.error(`Error while fetching redirect url from DDB with message: ${e}`, 500);
+    } catch (err) {
+        return ResponseHelper.error(`Error while fetching redirect url from DDB with message: ${err}`, 500);
     }
 };

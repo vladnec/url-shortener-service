@@ -9,10 +9,12 @@ import {
     AttributeType, BillingMode, ProjectionType, Table, 
 } from 'aws-cdk-lib/aws-dynamodb';
 import { HttpLambdaAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 export interface EventIncStackProps extends StackProps {
     hostedZoneName: string
     allowOrigins: string[];
+    jwtSecretName: string;
 }
 
 export class EventIncStack extends Stack {
@@ -30,7 +32,7 @@ export class EventIncStack extends Stack {
         super(scope, id, props);
 
         this.createShortLinkTable();
-        this.createCustomAuthorizer();
+        this.createCustomAuthorizer(props.jwtSecretName);
         this.createUserAuthorizer();
         this.createResolveShortLinkLambda();
         this.createRegisterShortLinkLambda();
@@ -118,11 +120,20 @@ export class EventIncStack extends Stack {
         this.shortLinkTable.grantReadData(this.resolveShortLink);
     }
 
-    private createCustomAuthorizer() {
+    private createCustomAuthorizer(secretName: string) {
         this.customAuthorizer = this.createLambda(
             'userAuthorizerLambda',
             '/customAuthorizer.ts',
+            {
+                JWT_SECRET_NAME: secretName,
+            },
         );
+        const ssmPolicy = new PolicyStatement({
+            resources: ['*'],
+            actions: ['secretsmanager:GetSecretValue'],
+            effect: Effect.ALLOW,
+        });
+        this.customAuthorizer.addToRolePolicy(ssmPolicy);
     }
 
     private createUserAuthorizer() {

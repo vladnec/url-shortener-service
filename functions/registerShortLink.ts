@@ -26,9 +26,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
                 'short-url': existingUrl.id,
             });
         }
-    } catch (e) {
+    } catch (err) {
         return ResponseHelper.error(
-            `Failed to check if url already exists in DDB to DDB with message: ${e}`,
+            `Failed to check if url already exists in DDB to DDB with message: ${err}`,
             500,
         );
     }
@@ -38,9 +38,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
             id,
             url,
         });
-    } catch (e) {
+    } catch (err) {
         return ResponseHelper.error(
-            `Failed to save short-link to DDB with message: ${e}`,
+            `Failed to save short-link to DDB with message: ${err}`,
             500,
         );
     }
