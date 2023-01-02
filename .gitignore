@@ -6,6 +6,8 @@ node_modules
 coverage
 
 # CDK asset staging directory
+.env
+cdk.context.json
 .cdk.staging
 cdk.out
 git branch -M main

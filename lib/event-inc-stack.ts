@@ -173,7 +173,7 @@ export class EventIncStack extends Stack {
                 domainName.regionalHostedZoneId,
             )),
             zone: hostedZone,
-            recordName: 'api-v2',
+            recordName: 'api',
         });
 
         return domainName;
