@@ -8,6 +8,7 @@ import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import {
     AttributeType, BillingMode, ProjectionType, Table, 
 } from 'aws-cdk-lib/aws-dynamodb';
+import { HttpLambdaAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 
 export interface EventIncStackProps extends StackProps {
     hostedZoneName: string
@@ -21,10 +22,16 @@ export class EventIncStack extends Stack {
 
     private resolveShortLink: NodejsFunction;
 
+    private customAuthorizer: NodejsFunction;
+
+    private userAuthorizer: HttpLambdaAuthorizer;
+
     constructor(scope: Construct, id: string, props: EventIncStackProps) {
         super(scope, id, props);
 
         this.createShortLinkTable();
+        this.createCustomAuthorizer();
+        this.createUserAuthorizer();
         this.createResolveShortLinkLambda();
         this.createRegisterShortLinkLambda();
         this.createApi(props);
@@ -39,7 +46,8 @@ export class EventIncStack extends Stack {
         this.shortLinkTable.addGlobalSecondaryIndex({
             indexName: 'url_gsi',
             partitionKey: { name: 'url', type: AttributeType.STRING },
-            projectionType: ProjectionType.ALL,
+            nonKeyAttributes: ['id'],
+            projectionType: ProjectionType.INCLUDE,
         });
     }
 
@@ -73,6 +81,7 @@ export class EventIncStack extends Stack {
             path: '/short-link',
             methods: [HttpMethod.POST],
             integration: new HttpLambdaIntegration('registerShortLink', this.registerShortLink),
+            authorizer: this.userAuthorizer,
         });
 
         api.addRoutes({
@@ -107,6 +116,25 @@ export class EventIncStack extends Stack {
             },
         );
         this.shortLinkTable.grantReadData(this.resolveShortLink);
+    }
+
+    private createCustomAuthorizer() {
+        this.customAuthorizer = this.createLambda(
+            'userAuthorizerLambda',
+            '/customAuthorizer.ts',
+        );
+    }
+
+    private createUserAuthorizer() {
+        this.userAuthorizer = new HttpLambdaAuthorizer(
+            'userAuthorizer',
+            this.customAuthorizer,
+            {
+                authorizerName: 'userAuthorizer',
+                identitySource: ['$request.header.Authorization'],
+                resultsCacheTtl: Duration.minutes(5),
+            },
+        );
     }
 
     private createLambda(name: string, handlerPath: string, environment: object = {}, props: NodejsFunctionProps = {}): NodejsFunction {
