@@ -1,5 +1,5 @@
 import { handler } from '../../functions/resolveShortLink';
-import { generateApiGatewayEvent } from '../../utils/TestUtils';
+import { generateApiGatewayEvent } from '../../utils/test-utils';
 import DynamoDBShortLinkService from '../../services/DynamoDBShortLinkService';
 import { ShortLink } from '../../interfaces/ShortLink';
 

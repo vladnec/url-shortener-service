@@ -27,14 +27,35 @@ class DynamoDBShortLinkService {
             },
             TableName: this.table,
         };
-        console.log('Performing get operation with params', JSON.stringify(params));
         try {
             const response = await this.docClient.get(params).promise();
             if (!response || !response.Item) {
                 return null;
             }
-            console.log(response);
             return response.Item as ShortLink;
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    }
+
+    public async getShortLinkByURL(url: string): Promise<ShortLink | null> {
+        const params: DocumentClient.QueryInput = {
+            TableName: this.table,
+            IndexName: 'url_index',
+            KeyConditionExpression: '#url = :url',
+            ExpressionAttributeNames: {
+                '#url': 'url',
+            },
+            ExpressionAttributeValues: {
+                ':url': url,
+            },
+        };
+        try {
+            const response = await this.docClient.query(params).promise();
+            if (!response || !response.Items || !response.Items[0]) {
+                return null;
+            }
+            return response.Items[0] as ShortLink;
         } catch (err) {
             return Promise.reject(err);
         }

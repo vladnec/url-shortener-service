@@ -18,10 +18,23 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (!isValidUrl(url)) {
         return ResponseHelper.error("URL is not valid. URL must start with 'http'.", 422);
     }
-
+    const ddbShortLinkService = new DynamoDBShortLinkService();
+    try {
+        const existingUrl = await ddbShortLinkService.getShortLinkByURL(url);
+        if (existingUrl) {
+            return ResponseHelper.success({
+                'short-url': existingUrl.id,
+            });
+        }
+    } catch (e) {
+        return ResponseHelper.error(
+            `Failed to check if url already exists in DDB to DDB with message: ${e}`,
+            500,
+        );
+    }
     const id = nanoid(8);
     try {
-        await new DynamoDBShortLinkService().store({
+        await ddbShortLinkService.store({
             id,
             url,
         });

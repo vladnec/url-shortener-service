@@ -5,7 +5,9 @@ import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-al
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as path from 'path';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
+import {
+    AttributeType, BillingMode, ProjectionType, Table, 
+} from 'aws-cdk-lib/aws-dynamodb';
 
 export interface EventIncStackProps extends StackProps {
     hostedZoneName: string
@@ -33,6 +35,11 @@ export class EventIncStack extends Stack {
             tableName: 'ShortURLTable',
             partitionKey: { name: 'id', type: AttributeType.STRING },
             billingMode: BillingMode.PAY_PER_REQUEST,
+        });
+        this.shortLinkTable.addGlobalSecondaryIndex({
+            indexName: 'url_gsi',
+            partitionKey: { name: 'url', type: AttributeType.STRING },
+            projectionType: ProjectionType.ALL,
         });
     }
 
@@ -88,7 +95,7 @@ export class EventIncStack extends Stack {
                 SHORT_URL_TABLE: this.shortLinkTable.tableName,
             },
         );
-        this.shortLinkTable.grantWriteData(this.registerShortLink);
+        this.shortLinkTable.grantReadWriteData(this.registerShortLink);
     }
 
     private createResolveShortLinkLambda() {
