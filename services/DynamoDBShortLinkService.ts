@@ -41,7 +41,7 @@ class DynamoDBShortLinkService {
     public async getShortLinkByURL(url: string): Promise<ShortLink | null> {
         const params: DocumentClient.QueryInput = {
             TableName: this.table,
-            IndexName: 'url_index',
+            IndexName: 'url_gsi',
             KeyConditionExpression: '#url = :url',
             ExpressionAttributeNames: {
                 '#url': 'url',
