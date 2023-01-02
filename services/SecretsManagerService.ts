@@ -1,16 +1,11 @@
 import AWS from 'aws-sdk';
 
 class SecretsManagerService {
-    private readonly region: string;
+    private readonly region: string = process.env.region!;
 
-    private secretsManager: AWS.SecretsManager;
-
-    constructor(region: string) {
-        this.region = region;
-        this.secretsManager = new AWS.SecretsManager({
-            region: this.region,
-        });
-    }
+    private secretsManager: AWS.SecretsManager = new AWS.SecretsManager({
+        region: this.region,
+    });
 
     public async getSecret(secretName: string): Promise<string | null> {
         const params: AWS.SecretsManager.GetSecretValueRequest = {

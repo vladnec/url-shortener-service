@@ -1,20 +1,26 @@
 import { Duration, Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { CorsHttpMethod, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2-alpha';
+import {
+    CorsHttpMethod, DomainName, HttpApi, HttpMethod,
+} from '@aws-cdk/aws-apigatewayv2-alpha';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as path from 'path';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import {
-    AttributeType, BillingMode, ProjectionType, Table, 
+    AttributeType, BillingMode, ProjectionType, Table,
 } from 'aws-cdk-lib/aws-dynamodb';
 import { HttpLambdaAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { ARecord, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { ApiGatewayv2DomainProperties } from 'aws-cdk-lib/aws-route53-targets';
 
 export interface EventIncStackProps extends StackProps {
-    hostedZoneName: string
     allowOrigins: string[];
     jwtSecretName: string;
+    domainName?: string
+
 }
 
 export class EventIncStack extends Stack {
@@ -54,22 +60,11 @@ export class EventIncStack extends Stack {
     }
 
     private createApi(props: EventIncStackProps) {
-        // const hostedZone = new PublicHostedZone(this, 'HostedZone', {
-        //     zoneName: props.hostedZoneName
-        // });
-        //
-        // const certificate = new DnsValidatedCertificate(this, 'DnsValidatedCertificate', {
-        //     hostedZone: hostedZone,
-        //     domainName: `api-v2.${props.hostedZoneName}`
-        // })
-        //
-        // const domainName = new DomainName(this, 'ApiDomainName', {
-        //     domainName: `api-v2.${props.hostedZoneName}`,
-        //     certificate: certificate
-        // })
-
+        const domainName = this.createCustomDomainName(props.domainName);
         const api = new HttpApi(this, 'URlShortenerHttpApi', {
-            // defaultDomainMapping: { domainName },
+            ...(domainName && {
+                defaultDomainMapping: { domainName },
+            }),
             corsPreflight: {
                 allowHeaders: ['Authorization'],
                 allowMethods: [CorsHttpMethod.OPTIONS, CorsHttpMethod.GET, CorsHttpMethod.POST],
@@ -91,11 +86,6 @@ export class EventIncStack extends Stack {
             methods: [HttpMethod.GET],
             integration: new HttpLambdaIntegration('resolveShortLink', this.resolveShortLink),
         });
-        // new ARecord(this, 'ApiGatewayRecordSet', {
-        //     target: RecordTarget.fromAlias(new ApiGatewayv2DomainProperties(domainName.regionalDomainName, domainName.regionalHostedZoneId)),
-        //     zone: hostedZone,
-        //     recordName: 'api-v2'
-        // })
     }
 
     private createRegisterShortLinkLambda() {
@@ -157,5 +147,35 @@ export class EventIncStack extends Stack {
                 ...environment,
             },
         });
+    }
+
+    private createCustomDomainName(customDomainName: string | undefined): DomainName | undefined {
+        if (!customDomainName) {
+            return undefined;
+        }
+        const hostedZone = PublicHostedZone.fromLookup(this, 'HostedZone', {
+            domainName: customDomainName,
+        });
+
+        const certificate = new DnsValidatedCertificate(this, 'DnsValidatedCertificate', {
+            hostedZone,
+            domainName: `api.${customDomainName}`,
+        });
+
+        const domainName = new DomainName(this, 'ApiDomainName', {
+            domainName: `api.${customDomainName}`,
+            certificate,
+        });
+
+        new ARecord(this, 'ApiGatewayRecordSet', {
+            target: RecordTarget.fromAlias(new ApiGatewayv2DomainProperties(
+                domainName.regionalDomainName,
+                domainName.regionalHostedZoneId,
+            )),
+            zone: hostedZone,
+            recordName: 'api-v2',
+        });
+
+        return domainName;
     }
 }

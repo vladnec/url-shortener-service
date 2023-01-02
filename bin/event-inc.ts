@@ -6,9 +6,12 @@ import { EventIncStack } from '../lib/event-inc-stack';
 config();
 const app = new cdk.App();
 
-const jwtSecretName: string = process.env.JWT_SECRET_NAME!;
 new EventIncStack(app, 'EventIncStack', {
-    hostedZoneName: 'short-link-event-inc.com',
-    allowOrigins: ['*'],
-    jwtSecretName,
+    allowOrigins: process.env.ALLOWED_ORIGINS!.split(','),
+    jwtSecretName: process.env.JWT_SECRET_NAME!,
+    domainName: process.env.DOMAIN_NAME,
+    env: {
+        account: process.env.CDK_ACCOUNT!,
+        region: process.env.CDK_REGION!,
+    },
 });

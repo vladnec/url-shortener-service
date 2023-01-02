@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {
-    APIGatewayTokenAuthorizerEvent, AuthResponse, Callback, Context, PolicyDocument, 
+    APIGatewayTokenAuthorizerEvent, AuthResponse, Callback, Context, PolicyDocument,
 } from 'aws-lambda';
 import { Effect } from 'aws-cdk-lib/aws-iam';
 import SecretsManagerService from '../services/SecretsManagerService';
@@ -41,7 +41,7 @@ export const handler = async (event: APIGatewayTokenAuthorizerEvent, context: Co
     }
 
     try {
-        const secret = await new SecretsManagerService('eu-central-1').getSecret(jwtSecretName);
+        const secret = await new SecretsManagerService().getSecret(jwtSecretName);
         const decoded = jwt.verify(token, secret);
         if (decoded) {
             return callback(null, generateAuthResponse('user', Effect.ALLOW, methodArn));

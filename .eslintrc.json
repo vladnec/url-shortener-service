@@ -29,29 +29,14 @@
         "no-new": "off",
         "prefer-promise-reject-errors": "off",
         "max-len": ["error", 150],
-        "camelcase": "off",
-        "import/named": "off",
-        "import/export": "off",
         "indent": ["error", 4, { "SwitchCase": 1 }],
-        "no-trailing-spaces": "off",
-        "@typescript-eslint/no-unused-vars": "error",
         "import/prefer-default-export": "off",
-        "import/no-extraneous-dependencies": "off",
-        "no-continue": "off",
-        "no-plusplus": "off",
-        "no-restricted-syntax": "off",
-        "no-await-in-loop": "off",
-        "@typescript-eslint/prefer-interface": "off",
-        "import/no-unresolved": "off",
-        "@typescript-eslint/explicit-function-return-type": "off",
-        "no-param-reassign": 0,
+        "no-console": "off",
         "import/extensions": ["error", "ignorePackages", {
             "js": "never",
             "jsx": "never",
             "ts": "never",
             "tsx": "never"
-        }],
-        "no-shadow": "off",
-        "@typescript-eslint/no-shadow": ["error"]
+        }]
     }
 }
