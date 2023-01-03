@@ -24,6 +24,7 @@ test('ShortURL DynamoDB Table Created with correct primary key', () => {
         ],
     });
 });
+
 test('ShortURL DynamoDB Table Created With GSI', () => {
     const app = new cdk.App();
     const stack = initEventInc(app);
@@ -49,19 +50,24 @@ test('ShortURL DynamoDB Table Created With GSI', () => {
         ],
     });
 });
+
 test('API Gateway Domain && Route 53RecordSet is created with custom domain name when domainName is passed to stack props', () => {
     const app = new cdk.App();
     const stack = new EventInc.EventIncStack(app, 'MyTestStack', {
         jwtSecretName: 'JWT_SECRET_NAME',
         allowOrigins: ['*'],
         domainName: 'test-domain.com',
+        env: {
+            region: 'eu-central-1',
+            account: '101020303',
+        },
     });
     const template = Template.fromStack(stack);
     template.hasResourceProperties('AWS::ApiGatewayV2::DomainName', {
         DomainName: 'api.test-domain.com',
     });
     template.hasResourceProperties('AWS::Route53::RecordSet', {
-        Name: 'api.test-domain.com',
+        Name: 'api.test-domain.com.',
     });
 });
 

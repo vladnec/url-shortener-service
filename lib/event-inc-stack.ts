@@ -140,7 +140,7 @@ export class EventIncStack extends Stack {
 
     private createLambda(name: string, handlerPath: string, environment: object = {}, props: NodejsFunctionProps = {}): NodejsFunction {
         return new NodejsFunction(this, name, {
-            entry: path.join('__dirname', '../functions', handlerPath),
+            entry: path.join('__dirname', '../src/functions', handlerPath),
             runtime: Runtime.NODEJS_18_X,
             memorySize: props.memorySize ?? 128,
             environment: {

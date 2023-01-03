@@ -1,8 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { nanoid } from 'nanoid';
-import DynamoDBShortLinkService from '../services/DynamoDBShortLinkService';
 import ResponseHelper from '../utils/ResponseHelper';
 import { isValidUrl } from '../utils/url-utils';
+import DynamoDBShortLinkService from '../services/DynamoDBShortLinkService';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     if (!event.body) {

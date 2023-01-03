@@ -1,9 +1,9 @@
-import { handler } from '../../functions/resolveShortLink';
-import { generateApiGatewayEvent } from '../../utils/test-utils';
-import DynamoDBShortLinkService from '../../services/DynamoDBShortLinkService';
-import { ShortLink } from '../../interfaces/ShortLink';
+import { handler } from '../../../src/functions/resolveShortLink';
+import { generateApiGatewayEvent } from '../../../src/utils/test-utils';
+import DynamoDBShortLinkService from '../../../src/services/DynamoDBShortLinkService';
+import { ShortLink } from '../../../src/interfaces/ShortLink';
 
-jest.mock('../../services/DynamoDBShortLinkService');
+jest.mock('../../../src/services/DynamoDBShortLinkService');
 
 afterEach(() => {
     jest.resetAllMocks();

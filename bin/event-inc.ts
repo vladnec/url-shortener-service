@@ -5,9 +5,10 @@ import { EventIncStack } from '../lib/event-inc-stack';
 
 config();
 const app = new cdk.App();
+const allowedOrigins = process.env.ALLOWED_ORIGINS;
 
 new EventIncStack(app, 'EventIncStack', {
-    allowOrigins: process.env.ALLOWED_ORIGINS!.split(','),
+    allowOrigins: allowedOrigins ? allowedOrigins.split(',') : [],
     jwtSecretName: process.env.JWT_SECRET_NAME!,
     domainName: process.env.DOMAIN_NAME,
     env: {

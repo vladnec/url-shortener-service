@@ -1,11 +1,11 @@
-import { handler } from '../../functions/registerShortLink';
-import { generateApiGatewayEvent } from '../../utils/test-utils';
-import DynamoDBShortLinkService from '../../services/DynamoDBShortLinkService';
-import { ShortLink } from '../../interfaces/ShortLink';
+import { handler } from '../../../src/functions/registerShortLink';
+import DynamoDBShortLinkService from '../../../src/services/DynamoDBShortLinkService';
+import { generateApiGatewayEvent } from '../../../src/utils/test-utils';
+import { ShortLink } from '../../../src/interfaces/ShortLink';
 
 jest.mock('nanoid', () => ({ nanoid: () => '1234' }));
 
-jest.mock('../../services/DynamoDBShortLinkService');
+jest.mock('../../../src/services/DynamoDBShortLinkService');
 
 afterEach(() => {
     jest.resetAllMocks();
